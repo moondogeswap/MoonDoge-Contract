@@ -66,8 +66,6 @@ contract MoonCaptain is Ownable {
     MoonDoge public modo;
     // The MOONBAR TOKEN!
     MoonBar public moonBar;
-    // Dev address.
-    address public devaddr;
     // MODO tokens created per block.
     uint256 public modoPerBlock;
     // Bonus muliplier for early modo makers.
@@ -91,13 +89,11 @@ contract MoonCaptain is Ownable {
     constructor(
         MoonDoge _modo,
         MoonBar _moonBar,
-        address _devaddr,
         uint256 _modoPerBlock,
         uint256 _startBlock
     ) public {
         modo = _modo;
         moonBar = _moonBar;
-        devaddr = _devaddr;
         modoPerBlock = _modoPerBlock;
         startBlock = _startBlock;
 
@@ -222,7 +218,6 @@ contract MoonCaptain is Ownable {
         }
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
         uint256 modoReward = multiplier.mul(modoPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-        modo.mint(devaddr, modoReward.div(10));
         modo.mint(address(moonBar), modoReward);
         pool.accModoPerShare = pool.accModoPerShare.add(modoReward.mul(1e12).div(lpSupply));
         pool.lastRewardBlock = block.number;
@@ -327,9 +322,4 @@ contract MoonCaptain is Ownable {
         moonBar.safeModoTransfer(_to, _amount);
     }
 
-    // Update dev address by the previous dev.
-    function dev(address _devaddr) public {
-        require(msg.sender == devaddr, "dev: wut?");
-        devaddr = _devaddr;
-    }
 }
