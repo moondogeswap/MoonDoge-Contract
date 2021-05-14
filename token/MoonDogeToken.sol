@@ -4,7 +4,7 @@
 
 pragma solidity ^0.6.0;
 
-import "../lib/token/BEP20/BEP20withCapped.sol";
+import "moondoge-swap-lib/contracts/token/BEP20/BEP20withCapped.sol";
 
 // MoonDoge with Governance.
 contract MoonDoge is BEP20withCapped {

@@ -3,7 +3,7 @@
 */
 
 pragma solidity 0.6.12;
-import "../lib/token/BEP20/BEP20.sol";
+import "moondoge-swap-lib/contracts/token/BEP20/BEP20.sol";
 import "../token/MoonDoge.sol";
 
 
