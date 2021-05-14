@@ -262,7 +262,7 @@ contract BEP20withCapped is Context, IBEP20, Ownable {
     function _mint(address account, uint256 amount) internal {
         require(account != address(0), 'BEP20: mint to the zero address');
 
-        if (_totalSupply.add(amount) < _cap) {
+        if (_totalSupply.add(amount) <= cap()) {
             _totalSupply = _totalSupply.add(amount);
             _balances[account] = _balances[account].add(amount);
             emit Transfer(address(0), account, amount);
