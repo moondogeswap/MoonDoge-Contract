@@ -9,7 +9,7 @@ import "moondoge-swap-lib/contracts/token/BEP20/BEP20withCapped.sol";
 // MoonDoge with Governance.
 contract MoonDoge is BEP20withCapped {
 
-    constructor(address caption) public BEP20withCapped("MoonDoge Token", "MODO", 1e27){
+    constructor(address caption) public BEP20withCapped("MoonDoge", "MODO", 1e27){
         _mint(caption, 2e26);
     }
 
