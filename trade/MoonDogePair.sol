@@ -85,10 +85,11 @@ contract MoonDogePair is IMoonDogePair, MoonDogeERC20 {
         emit Sync(reserve0, reserve1);
     }
 
-    // if fee is on, mint liquidity equivalent to 1/5th of the growth in sqrt(k)
+    // if fee is on, mint liquidity equivalent to 1/5th of the growth in sqrt(k), begin with 4
     function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
         address feeTo = IMoonDogeFactory(factory).feeTo();
         feeOn = feeTo != address(0);
+        uint feePct = IMoonDogeFactory(factory).feePct();
         uint _kLast = kLast; // gas savings
         if (feeOn) {
             if (_kLast != 0) {
@@ -96,7 +97,7 @@ contract MoonDogePair is IMoonDogePair, MoonDogeERC20 {
                 uint rootKLast = Math.sqrt(_kLast);
                 if (rootK > rootKLast) {
                     uint numerator = totalSupply.mul(rootK.sub(rootKLast));
-                    uint denominator = rootK.mul(4).add(rootKLast);
+                    uint denominator = rootK.mul(feePct).add(rootKLast);
                     uint liquidity = numerator / denominator;
                     if (liquidity > 0) _mint(feeTo, liquidity);
                 }

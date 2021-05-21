@@ -25,6 +25,8 @@ contract Raffle is RaffleOwnable, Initializable {
     RaffleNFT public raffleNFT;
     // adminAddress
     address public adminAddress;
+    // burnAddress
+    address public burnAddress;
     // maxNumber
     uint8 public maxNumber;
     // minPrice, if decimal is not 18, please reset it
@@ -72,15 +74,17 @@ contract Raffle is RaffleOwnable, Initializable {
         uint256 _minPrice,
         uint8 _maxNumber,
         address _owner,
-        address _adminAddress
+        address _adminAddress,
+        address _burnAddress
     ) public initializer {
         modo = _modo;
         raffleNFT = _raffle;
         minPrice = _minPrice;
         maxNumber = _maxNumber;
         adminAddress = _adminAddress;
+        burnAddress = _burnAddress;
         lastTimestamp = block.timestamp;
-        allocation = [50, 30, 10];
+        allocation = [50, 30, 15];
         initOwner(_owner);
     }
 
@@ -110,6 +114,20 @@ contract Raffle is RaffleOwnable, Initializable {
             uint256 amount = getTotalRewards(issueIndex-1).mul(allocation[0]).div(100);
             internalBuy(amount, nullTicket);
         }
+        if(getMatchingRewardAmount(issueIndex-1, 3) == 0) {
+            uint256 amount = getTotalRewards(issueIndex-1).mul(allocation[1]).div(100);
+            internalBuy(amount, nullTicket);
+        }
+        if(getMatchingRewardAmount(issueIndex-1, 2) == 0) {
+            uint256 amount = getTotalRewards(issueIndex-1).mul(allocation[2]).div(100);
+            internalBuy(amount, nullTicket);
+        }
+        // match only one should be transferto burn
+        uint256 burnAmount = getTotalRewards(issueIndex-1).mul(100.sub(allocation[0]).sub(allocation[1]).sub(allocation[2])).div(100);
+        if(burnAmount > 0) {
+            modo.safeTransfer(burnAddress, burnAmount);
+        }
+        
         emit Reset(issueIndex);
     }
 
@@ -227,7 +245,7 @@ contract Raffle is RaffleOwnable, Initializable {
 
     function  multiBuy(uint256 _price, uint8[4][] memory _numbers) external {
         require (!drawed(), 'drawed, can not buy now');
-        require (_price >= minPrice, 'price must above minPrice');
+        require (_price >= minPrice.mul(_numbers.length), 'price must above minPrice');
         uint256 totalPrice  = 0;
         for (uint i = 0; i < _numbers.length; i++) {
             for (uint j = 0; j < 4; j++) {

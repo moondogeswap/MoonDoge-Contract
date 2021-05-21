@@ -12,6 +12,7 @@ contract MoonDogeFactory is IMoonDogeFactory {
 
     address public feeTo;
     address public feeToSetter;
+    uint public feePct;
 
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
@@ -20,6 +21,7 @@ contract MoonDogeFactory is IMoonDogeFactory {
 
     constructor(address _feeToSetter) public {
         feeToSetter = _feeToSetter;
+        feePct = 4;
     }
 
     function allPairsLength() external view returns (uint) {
@@ -51,5 +53,10 @@ contract MoonDogeFactory is IMoonDogeFactory {
     function setFeeToSetter(address _feeToSetter) external {
         require(msg.sender == feeToSetter, 'MoonDoge: FORBIDDEN');
         feeToSetter = _feeToSetter;
+    }
+
+    function setFeePct(uint _feePct) external {
+        require(msg.sender == feeToSetter, 'MoonDoge: FORBIDDEN');
+        feePct = _feePct;
     }
 }

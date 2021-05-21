@@ -5,25 +5,10 @@
 pragma solidity ^0.6.6;
 
 import "./libraries/SafeMath.sol";
-import "./interfaces/IMoonDogePair.sol";
 import "./interfaces/IERC20.sol";
+import "./interfaces/IMoonDogePair.sol";
+import "./interfaces/IMoonDogeFactory.sol";
 import "../lib/utils/TransferHelper.sol";
-
-interface IMoonDogeFactory {
-    event PairCreated(address indexed token0, address indexed token1, address pair, uint);
-
-    function feeTo() external view returns (address);
-    function feeToSetter() external view returns (address);
-
-    function getPair(address tokenA, address tokenB) external view returns (address pair);
-    function allPairs(uint) external view returns (address pair);
-    function allPairsLength() external view returns (uint);
-
-    function createPair(address tokenA, address tokenB) external returns (address pair);
-
-    function setFeeTo(address) external;
-    function setFeeToSetter(address) external;
-}
 
 interface IMoonDogeRouter01 {
     function factory() external pure returns (address);
