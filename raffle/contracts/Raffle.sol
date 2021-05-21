@@ -109,19 +109,23 @@ contract Raffle is RaffleOwnable, Initializable {
         winningNumbers[2]=0;
         winningNumbers[3]=0;
         drawingPhase = false;
-        issueIndex = issueIndex +1;
+        issueIndex = issueIndex + 1;
+        uint256 interBuyAmount = 0;
         if(getMatchingRewardAmount(issueIndex-1, 4) == 0) {
-            uint256 amount = getTotalRewards(issueIndex-1).mul(allocation[0]).div(100);
-            internalBuy(amount, nullTicket);
+            // uint256 amount = getTotalRewards(issueIndex-1).mul(allocation[0]).div(100);
+            // interBuyAmount += amount;
+            interBuyAmount = interBuyAmount.add(getTotalRewards(issueIndex-1).mul(allocation[0]).div(100));
         }
         if(getMatchingRewardAmount(issueIndex-1, 3) == 0) {
-            uint256 amount = getTotalRewards(issueIndex-1).mul(allocation[1]).div(100);
-            internalBuy(amount, nullTicket);
+            interBuyAmount = interBuyAmount.add(getTotalRewards(issueIndex-1).mul(allocation[1]).div(100));
         }
         if(getMatchingRewardAmount(issueIndex-1, 2) == 0) {
-            uint256 amount = getTotalRewards(issueIndex-1).mul(allocation[2]).div(100);
-            internalBuy(amount, nullTicket);
+            interBuyAmount = interBuyAmount.add(getTotalRewards(issueIndex-1).mul(allocation[2]).div(100));
         }
+        if(interBuyAmount > 0) {
+            internalBuy(interBuyAmount, nullTicket);
+        }
+
         // match only one should be transferto burn
         uint256 burnAmount = getTotalRewards(issueIndex-1).mul(100.sub(allocation[0]).sub(allocation[1]).sub(allocation[2])).div(100);
         if(burnAmount > 0) {
