@@ -4,7 +4,7 @@
 
 pragma solidity 0.6.12;
 import "moondoge-swap-lib/contracts/token/BEP20/BEP20.sol";
-import "../token/MoonDoge.sol";
+import "../token/MoonDogeToken.sol";
 
 
 // MoonBar with Governance.

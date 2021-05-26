@@ -19,6 +19,7 @@ contract Raffle is RaffleOwnable, Initializable {
     uint8 constant keyLengthForEachBuy = 11;
     // Allocation for first/sencond/third reward
     uint8[3] public allocation;
+    uint8 public totalAlloc = 100;
     // The TOKEN to buy raffle
     IERC20 public modo;
     // The Raffle NFT for tickets
@@ -127,7 +128,7 @@ contract Raffle is RaffleOwnable, Initializable {
         }
 
         // match only one should be transferto burn
-        uint256 burnAmount = getTotalRewards(issueIndex-1).mul(100.sub(allocation[0]).sub(allocation[1]).sub(allocation[2])).div(100);
+        uint256 burnAmount = getTotalRewards(issueIndex-1).mul(totalAlloc.sub(allocation[0]).sub(allocation[1]).sub(allocation[2])).div(100);
         if(burnAmount > 0) {
             modo.safeTransfer(burnAddress, burnAmount);
         }

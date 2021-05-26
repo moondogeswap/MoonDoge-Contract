@@ -163,7 +163,7 @@ library MoonDogeLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'3035aed1ad3b60f99260d090b61c7e57fe1b17daabeb2aac9382cde124633049' // init code hash
+                hex'b384af7764526bd5792e672b09bdc0d50640667cc9f798c88624cbeafcfc19c7' // init code hash
             ))));
     }
 

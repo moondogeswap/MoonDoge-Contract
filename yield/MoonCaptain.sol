@@ -9,7 +9,7 @@ import 'moondoge-swap-lib/contracts/token/BEP20/IBEP20.sol';
 import 'moondoge-swap-lib/contracts/token/BEP20/SafeBEP20.sol';
 import 'moondoge-swap-lib/contracts/access/Ownable.sol';
 
-import "../token/MoonDoge.sol";
+import "../token/MoonDogeToken.sol";
 
 import "./MoonBar.sol";
 
