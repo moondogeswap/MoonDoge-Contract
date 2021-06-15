@@ -854,6 +854,7 @@ contract BootCamp is Ownable, ReentrancyGuard {
     event AdminTokenRecovery(address tokenRecovered, uint256 amount);
     event Deposit(address indexed user, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 amount);
+    event EmergencyRewardWithdraw(address indexed user, uint256 amount);
     event NewStartAndEndBlocks(uint256 startBlock, uint256 endBlock);
     event NewRewardPerBlock(uint256 rewardPerBlock);
     event NewPoolLimit(uint256 poolLimitPerUser);
@@ -991,6 +992,7 @@ contract BootCamp is Ownable, ReentrancyGuard {
      */
     function emergencyRewardWithdraw(uint256 _amount) external onlyOwner {
         rewardToken.safeTransfer(address(msg.sender), _amount);
+        emit EmergencyRewardWithdraw(msg.sender, user.amount);
     }
 
     /**
@@ -1023,7 +1025,6 @@ contract BootCamp is Ownable, ReentrancyGuard {
      * @param _poolLimitPerUser: new pool limit per user
      */
     function updatePoolLimitPerUser(bool _hasUserLimit, uint256 _poolLimitPerUser) external onlyOwner {
-        require(hasUserLimit, "Must be set");
         if (_hasUserLimit) {
             require(_poolLimitPerUser > poolLimitPerUser, "New limit must be higher");
             poolLimitPerUser = _poolLimitPerUser;

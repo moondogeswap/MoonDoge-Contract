@@ -18,6 +18,9 @@ contract MoonDogeFactory is IMoonDogeFactory {
     address[] public allPairs;
 
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
+    event UpdateFeeTo(address indexed prev, address indexed to);
+    event UpdateFeeToSetter(address indexed prev, address indexed to);
+    event UpdateFeePct(uint indexed prev, uint indexed pct);
 
     constructor(address _feeToSetter) public {
         feeToSetter = _feeToSetter;
@@ -47,16 +50,22 @@ contract MoonDogeFactory is IMoonDogeFactory {
 
     function setFeeTo(address _feeTo) external {
         require(msg.sender == feeToSetter, 'MoonDoge: FORBIDDEN');
+        address prevFeeTo = feeTo;
         feeTo = _feeTo;
+        emit UpdateFeeTo(prevFeeTo, feeTo);
     }
 
     function setFeeToSetter(address _feeToSetter) external {
         require(msg.sender == feeToSetter, 'MoonDoge: FORBIDDEN');
+        address prevFeeToSetter = feeToSetter;
         feeToSetter = _feeToSetter;
+        emit UpdateFeeToSetter(prevFeeToSetter, feeToSetter);
     }
 
     function setFeePct(uint _feePct) external {
-        require(msg.sender == feeToSetter, 'MoonDoge: FORBIDDEN');
+        require(feePct == _feePct, 'MoonDoge: FORBIDDEN');
+        uint prevFeePct = feePct;
         feePct = _feePct;
+        emit UpdateFeePct(prevFeePct, feePct);
     }
 }

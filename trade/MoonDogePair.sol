@@ -15,7 +15,7 @@ contract MoonDogePair is IMoonDogePair, MoonDogeERC20 {
     uint public constant MINIMUM_LIQUIDITY = 10**3;
     bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
 
-    address public factory;
+    address immutable public factory;
     address public token0;
     address public token1;
 
@@ -142,6 +142,7 @@ contract MoonDogePair is IMoonDogePair, MoonDogeERC20 {
 
         bool feeOn = _mintFee(_reserve0, _reserve1);
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
+        require(_totalSupply > 0, "totalSupply must greater than 0");
         amount0 = liquidity.mul(balance0) / _totalSupply; // using balances ensures pro-rata distribution
         amount1 = liquidity.mul(balance1) / _totalSupply; // using balances ensures pro-rata distribution
         require(amount0 > 0 && amount1 > 0, 'MoonDoge: INSUFFICIENT_LIQUIDITY_BURNED');

@@ -19,7 +19,7 @@ contract Raffle is RaffleOwnable, Initializable {
     uint8 constant keyLengthForEachBuy = 11;
     // Allocation for first/sencond/third reward
     uint8[3] public allocation;
-    uint8 public totalAlloc = 100;
+    uint8 constant public totalAlloc = 100;
     // The TOKEN to buy raffle
     IERC20 public modo;
     // The Raffle NFT for tickets
@@ -63,8 +63,10 @@ contract Raffle is RaffleOwnable, Initializable {
     event Claim(address indexed user, uint256 tokenid, uint256 amount);
     event DevWithdraw(address indexed user, uint256 amount);
     event Reset(uint256 indexed issueIndex);
-    event MultiClaim(address indexed user, uint256 amount);
-    event MultiBuy(address indexed user, uint256 amount);
+    event MultiClaim(address indexed user, uint256[] tickets, uint256 amount);
+    event MultiBuy(address indexed user, uint256[] tickets, uint256 amount);
+    event UpdateMaxNumber(uint8 indexed prev, uint8 indexed number);
+    event UpdateAllocation(uint8[] indexed prev, uint8[] indexed alloc);
 
     constructor() public {
     }
@@ -103,7 +105,6 @@ contract Raffle is RaffleOwnable, Initializable {
     function reset() external onlyAdmin {
         require(drawed(), "drawed?");
         lastTimestamp = block.timestamp;
-        totalAddresses = 0;
         totalAmount = 0;
         winningNumbers[0]=0;
         winningNumbers[1]=0;
@@ -217,8 +218,10 @@ contract Raffle is RaffleOwnable, Initializable {
         for (uint i = 0; i < 4; i++) {
             require (_numbers[i] <= maxNumber, 'exceed the maximum');
         }
+        // buy empty number and burn tokenId
         uint256 tokenId = raffleNFT.newRaffleItem(address(this), _numbers, _price, issueIndex);
-        raffleInfo[issueIndex].push(tokenId);
+        raffleNFT.burn(tokenId);
+
         totalAmount = totalAmount.add(_price);
         lastTimestamp = block.timestamp;
         emit Buy(address(this), tokenId);
@@ -228,9 +231,9 @@ contract Raffle is RaffleOwnable, Initializable {
     function buy(uint256 _price, uint8[4] memory _numbers) external {
         require(!drawed(), 'drawed, can not buy now');
         require(!drawingPhase, 'drawing, can not buy now');
-        require (_price >= minPrice, 'price must above minPrice');
+        require(_price >= minPrice, 'price must above minPrice');
         for (uint i = 0; i < 4; i++) {
-            require (_numbers[i] <= maxNumber, 'exceed number scope');
+            require (_numbers[i] <= maxNumber && _numbers[i] > 0, 'exceed number scope');
         }
         uint256 tokenId = raffleNFT.newRaffleItem(msg.sender, _numbers, _price, issueIndex);
         raffleInfo[issueIndex].push(tokenId);
@@ -250,28 +253,32 @@ contract Raffle is RaffleOwnable, Initializable {
 
     function  multiBuy(uint256 _price, uint8[4][] memory _numbers) external {
         require (!drawed(), 'drawed, can not buy now');
+        require (!drawingPhase, "enter drawing phase first");
         require (_price >= minPrice.mul(_numbers.length), 'price must above minPrice');
+        uint256[] tickets;
         uint256 totalPrice  = 0;
         for (uint i = 0; i < _numbers.length; i++) {
             for (uint j = 0; j < 4; j++) {
                 require (_numbers[i][j] <= maxNumber && _numbers[i][j] > 0, 'exceed number scope');
             }
             uint256 tokenId = raffleNFT.newRaffleItem(msg.sender, _numbers[i], _price, issueIndex);
+            tickets.push(tokenId);
             raffleInfo[issueIndex].push(tokenId);
             if (userInfo[msg.sender].length == 0) {
                 totalAddresses = totalAddresses + 1;
             }
             userInfo[msg.sender].push(tokenId);
-            totalAmount = totalAmount.add(_price);
             lastTimestamp = block.timestamp;
-            totalPrice = totalPrice.add(_price);
+
             uint64[keyLengthForEachBuy] memory numberIndexKey = generateNumberIndexKey(_numbers[i]);
             for (uint k = 0; k < keyLengthForEachBuy; k++) {
                 userBuyAmountSum[issueIndex][numberIndexKey[k]]=userBuyAmountSum[issueIndex][numberIndexKey[k]].add(_price);
             }
         }
+        totalPrice = _numbers.length.mul(_price);
         modo.safeTransferFrom(address(msg.sender), address(this), totalPrice);
-        emit MultiBuy(msg.sender, totalPrice);
+        totalAmount = totalAmount.add(totalPrice);
+        emit MultiBuy(msg.sender, tickets, totalPrice);
     }
 
     function claimReward(uint256 _tokenId) external {
@@ -299,7 +306,7 @@ contract Raffle is RaffleOwnable, Initializable {
         if(totalReward>0) {
             modo.safeTransfer(address(msg.sender), totalReward);
         }
-        emit MultiClaim(msg.sender, totalReward);
+        emit MultiClaim(msg.sender, _tickets, totalReward);
     }
 
     function generateNumberIndexKey(uint8[4] memory number) public pure returns (uint64[keyLengthForEachBuy] memory) {
@@ -311,20 +318,20 @@ contract Raffle is RaffleOwnable, Initializable {
 
         uint64[keyLengthForEachBuy] memory result;
         // match all
-        result[0] = tempNumber[0]*256*256*256*256*256*256 + 1*256*256*256*256*256 + tempNumber[1]*256*256*256*256 + 2*256*256*256 + tempNumber[2]*256*256 + 3*256 + tempNumber[3];
+        result[0] = tempNumber[0] << 48 + 1 << 40 + tempNumber[1] << 32 + 2 << 24 + tempNumber[2] << 16 + 3 << 8 + tempNumber[3];
         // match 3
-        result[1] = tempNumber[0]*256*256*256*256 + 1*256*256*256 + tempNumber[1]*256*256 + 2*256+ tempNumber[2];
-        result[2] = tempNumber[0]*256*256*256*256 + 1*256*256*256 + tempNumber[1]*256*256 + 3*256+ tempNumber[3];
-        result[3] = tempNumber[0]*256*256*256*256 + 2*256*256*256 + tempNumber[2]*256*256 + 3*256 + tempNumber[3];
-        result[4] = 1*256*256*256*256*256 + tempNumber[1]*256*256*256*256 + 2*256*256*256 + tempNumber[2]*256*256 + 3*256 + tempNumber[3];
+        result[1] = tempNumber[0] << 32 + 1 << 24 + tempNumber[1] << 16 + 2 << 8 + tempNumber[2];
+        result[2] = tempNumber[0] << 32 + 1 << 24 + tempNumber[1] << 16 + 3 << 8 + tempNumber[3];
+        result[3] = tempNumber[0] << 32 + 2 << 24 + tempNumber[2] << 16 + 3 << 8 + tempNumber[3];
+        result[4] = 1 << 40 + tempNumber[1] << 32 + 2 << 24 + tempNumber[2] << 16 + 3 << 8 + tempNumber[3];
         // match 2
-        result[5] = tempNumber[0]*256*256 + 1*256+ tempNumber[1];
-        result[6] = tempNumber[0]*256*256 + 2*256+ tempNumber[2];
-        result[7] = tempNumber[0]*256*256 + 3*256+ tempNumber[3];
+        result[5] = tempNumber[0] << 16 + 1 << 8 + tempNumber[1];
+        result[6] = tempNumber[0] << 16 + 2 << 8 + tempNumber[2];
+        result[7] = tempNumber[0] << 16 + 3 << 8 + tempNumber[3];
         // match 1
-        result[8] = 1*256*256*256 + tempNumber[1]*256*256 + 2*256 + tempNumber[2];
-        result[9] = 1*256*256*256 + tempNumber[1]*256*256 + 3*256 + tempNumber[3];
-        result[10] = 2*256*256*256 + tempNumber[2]*256*256 + 3*256 + tempNumber[3];
+        result[8] = 1 << 24 + tempNumber[1] << 16 + 2 << 8 + tempNumber[2];
+        result[9] = 1 << 24 + tempNumber[1] << 16 + 3 << 8 + tempNumber[3];
+        result[10] = 2 << 24 + tempNumber[2] << 16 + 3 << 8 + tempNumber[3];
 
         return result;
     }
@@ -406,12 +413,18 @@ contract Raffle is RaffleOwnable, Initializable {
 
     // Set the maxNumber price for raffle
     function setMaxNumber(uint8 _maxNumber) external onlyAdmin {
+        unit8 prevMaxNumber = maxNumber;
         maxNumber = _maxNumber;
+        emit UpdateMaxNumber(prevMaxNumber, maxNumber);
     }
 
     // Set the allocation for one reward
-    function setAllocation(uint8 _allcation1, uint8 _allcation2, uint8 _allcation3) external onlyAdmin {
-        allocation = [_allcation1, _allcation2, _allcation3];
+    function setAllocation(uint8 _allocation1, uint8 _allocation2, uint8 _allocation3) external onlyAdmin {
+        uint8 _totalAlloc = _allocation1.add(_allocation2).add(_allocation3);
+        require(totalAlloc > _totalAlloc && _totalAlloc > 0, "invalid alloc");
+        unit8[] prevAllocation = allocation;
+        allocation = [_allocation1, _allocation2, _allocation3];
+        emit UpdateAllocation(prevAllocation, allocation);
     }
 
 }

@@ -76,6 +76,8 @@ contract MoonCaptain is Ownable {
 
     // Info of each pool.
     PoolInfo[] public poolInfo;
+    // Check pool if exist
+    mapping (address => bool) public poolExist;
     // Info of each user that stakes LP tokens.
     mapping (uint256 => mapping (address => UserInfo)) public userInfo;
     // Total allocation points. Must be the sum of all allocation points in all pools.
@@ -86,6 +88,9 @@ contract MoonCaptain is Ownable {
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
+    event UpdateMultiplier(uint256 prev, uint256 multiplier);
+    event UpdateMigrator(address indexed prev, address indexed migrator);
+
 
     constructor(
         MoonDoge _modo,
@@ -106,12 +111,20 @@ contract MoonCaptain is Ownable {
             accModoPerShare: 0
         }));
 
+        poolExist[_modo] = true;
         totalAllocPoint = 1000;
 
     }
 
+    modifier validatePoolId(uint256 _pid) {
+        require (_pid < poolInfo.length, "pool not exist");
+        __;
+    }
+
     function updateMultiplier(uint256 multiplierNumber) public onlyOwner {
+        uint256 prevMultiplier = BONUS_MULTIPLIER;
         BONUS_MULTIPLIER = multiplierNumber;
+        emit UpdateMultiplier(prevMultiplier, BONUS_MULTIPLIER);
     }
 
     function poolLength() external view returns (uint256) {
@@ -124,6 +137,7 @@ contract MoonCaptain is Ownable {
         if (_withUpdate) {
             massUpdatePools();
         }
+        require(!poolExist[_lpToken], "pool: already exist");
         uint256 lastRewardBlock = block.number > startBlock ? block.number : startBlock;
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
         poolInfo.push(PoolInfo({
@@ -132,11 +146,12 @@ contract MoonCaptain is Ownable {
             lastRewardBlock: lastRewardBlock,
             accModoPerShare: 0
         }));
+        poolExist[_lpToken] = true;
         updateStakingPool();
     }
 
     // Update the given pool's MODO allocation point. Can only be called by the owner.
-    function set(uint256 _pid, uint256 _allocPoint, bool _withUpdate) public onlyOwner {
+    function set(uint256 _pid, uint256 _allocPoint, bool _withUpdate) public onlyOwner, validatePoolId {
         if (_withUpdate) {
             massUpdatePools();
         }
@@ -163,11 +178,13 @@ contract MoonCaptain is Ownable {
 
     // Set the migrator contract. Can only be called by the owner.
     function setMigrator(IMigratorCaptain _migrator) public onlyOwner {
+        address prevMigrator = migrator;
         migrator = _migrator;
+        emit UpdateMigrator(prevMigrator, migrator);
     }
 
     // Migrate lp token to another lp contract. Can be called by anyone. We trust that migrator contract is good.
-    function migrate(uint256 _pid) public {
+    function migrate(uint256 _pid) public validatePoolId {
         require(address(migrator) != address(0), "migrate: no migrator");
         PoolInfo storage pool = poolInfo[_pid];
         IBEP20 lpToken = pool.lpToken;
@@ -184,7 +201,7 @@ contract MoonCaptain is Ownable {
     }
 
     // View function to see pending MODOs on frontend.
-    function pendingModo(uint256 _pid, address _user) external view returns (uint256) {
+    function pendingModo(uint256 _pid, address _user) external view validatePoolId returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accModoPerShare = pool.accModoPerShare;
@@ -207,7 +224,7 @@ contract MoonCaptain is Ownable {
 
 
     // Update reward variables of the given pool to be up-to-date.
-    function updatePool(uint256 _pid) public {
+    function updatePool(uint256 _pid) public validatePoolId {
         PoolInfo storage pool = poolInfo[_pid];
         if (block.number <= pool.lastRewardBlock) {
             return;
@@ -225,7 +242,7 @@ contract MoonCaptain is Ownable {
     }
 
     // Deposit LP tokens to MoonCaptain for MODO allocation.
-    function deposit(uint256 _pid, uint256 _amount) public {
+    function deposit(uint256 _pid, uint256 _amount) public validatePoolId {
 
         require (_pid != 0, 'deposit MODO by staking');
 
@@ -247,7 +264,7 @@ contract MoonCaptain is Ownable {
     }
 
     // Withdraw LP tokens from MoonCaptain.
-    function withdraw(uint256 _pid, uint256 _amount) public {
+    function withdraw(uint256 _pid, uint256 _amount) public validatePoolId {
 
         require (_pid != 0, 'withdraw MODO by unstaking');
 
@@ -309,7 +326,7 @@ contract MoonCaptain is Ownable {
     }
 
     // Withdraw without caring about rewards. EMERGENCY ONLY.
-    function emergencyWithdraw(uint256 _pid) public {
+    function emergencyWithdraw(uint256 _pid) public validatePoolId {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         pool.lpToken.safeTransfer(address(msg.sender), user.amount);
