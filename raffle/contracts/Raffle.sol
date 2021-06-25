@@ -106,10 +106,10 @@ contract Raffle is RaffleOwnable, Initializable {
         require(drawed(), "drawed?");
         lastTimestamp = block.timestamp;
         totalAmount = 0;
-        winningNumbers[0]=0;
-        winningNumbers[1]=0;
-        winningNumbers[2]=0;
-        winningNumbers[3]=0;
+        winningNumbers[0] = 0;
+        winningNumbers[1] = 0;
+        winningNumbers[2] = 0;
+        winningNumbers[3] = 0;
         drawingPhase = false;
         issueIndex = issueIndex + 1;
         uint256 interBuyAmount = 0;
@@ -133,7 +133,6 @@ contract Raffle is RaffleOwnable, Initializable {
         if(burnAmount > 0) {
             modo.safeTransfer(burnAddress, burnAmount);
         }
-        
         emit Reset(issueIndex);
     }
 
@@ -166,7 +165,7 @@ contract Raffle is RaffleOwnable, Initializable {
                 _externalRandomNumber
             )
         );
-        _randomNumber  = uint256(_structHash);
+        _randomNumber = uint256(_structHash);
         assembly {_randomNumber := add(mod(_randomNumber, _maxNumber),1)}
         winningNumbers[0]=uint8(_randomNumber);
 
@@ -179,9 +178,9 @@ contract Raffle is RaffleOwnable, Initializable {
                 _externalRandomNumber
             )
         );
-        _randomNumber  = uint256(_structHash);
+        _randomNumber = uint256(_structHash);
         assembly {_randomNumber := add(mod(_randomNumber, _maxNumber),1)}
-        winningNumbers[1]=uint8(_randomNumber);
+        winningNumbers[1] = uint8(_randomNumber);
 
         // 3
         _structHash = keccak256(
@@ -192,9 +191,9 @@ contract Raffle is RaffleOwnable, Initializable {
                 _externalRandomNumber
             )
         );
-        _randomNumber  = uint256(_structHash);
+        _randomNumber = uint256(_structHash);
         assembly {_randomNumber := add(mod(_randomNumber, _maxNumber),1)}
-        winningNumbers[2]=uint8(_randomNumber);
+        winningNumbers[2] = uint8(_randomNumber);
 
         // 4
         _structHash = keccak256(
@@ -204,9 +203,9 @@ contract Raffle is RaffleOwnable, Initializable {
                 _externalRandomNumber
             )
         );
-        _randomNumber  = uint256(_structHash);
+        _randomNumber = uint256(_structHash);
         assembly {_randomNumber := add(mod(_randomNumber, _maxNumber),1)}
-        winningNumbers[3]=uint8(_randomNumber);
+        winningNumbers[3] = uint8(_randomNumber);
         historyNumbers[issueIndex] = winningNumbers;
         historyAmount[issueIndex] = calculateMatchingRewardAmount();
         drawingPhase = false;
@@ -245,7 +244,7 @@ contract Raffle is RaffleOwnable, Initializable {
         lastTimestamp = block.timestamp;
         uint64[keyLengthForEachBuy] memory userNumberIndex = generateNumberIndexKey(_numbers);
         for (uint i = 0; i < keyLengthForEachBuy; i++) {
-            userBuyAmountSum[issueIndex][userNumberIndex[i]]=userBuyAmountSum[issueIndex][userNumberIndex[i]].add(_price);
+            userBuyAmountSum[issueIndex][userNumberIndex[i]] = userBuyAmountSum[issueIndex][userNumberIndex[i]].add(_price);
         }
         modo.safeTransferFrom(address(msg.sender), address(this), _price);
         emit Buy(msg.sender, tokenId);
@@ -256,7 +255,7 @@ contract Raffle is RaffleOwnable, Initializable {
         require (!drawingPhase, "enter drawing phase first");
         require (_price >= minPrice.mul(_numbers.length), 'price must above minPrice');
         uint256[] tickets;
-        uint256 totalPrice  = 0;
+        uint256 totalPrice = 0;
         for (uint i = 0; i < _numbers.length; i++) {
             for (uint j = 0; j < 4; j++) {
                 require (_numbers[i][j] <= maxNumber && _numbers[i][j] > 0, 'exceed number scope');
@@ -272,7 +271,7 @@ contract Raffle is RaffleOwnable, Initializable {
 
             uint64[keyLengthForEachBuy] memory numberIndexKey = generateNumberIndexKey(_numbers[i]);
             for (uint k = 0; k < keyLengthForEachBuy; k++) {
-                userBuyAmountSum[issueIndex][numberIndexKey[k]]=userBuyAmountSum[issueIndex][numberIndexKey[k]].add(_price);
+                userBuyAmountSum[issueIndex][numberIndexKey[k]] = userBuyAmountSum[issueIndex][numberIndexKey[k]].add(_price);
             }
         }
         totalPrice = _numbers.length.mul(_price);
@@ -311,10 +310,10 @@ contract Raffle is RaffleOwnable, Initializable {
 
     function generateNumberIndexKey(uint8[4] memory number) public pure returns (uint64[keyLengthForEachBuy] memory) {
         uint64[4] memory tempNumber;
-        tempNumber[0]=uint64(number[0]);
-        tempNumber[1]=uint64(number[1]);
-        tempNumber[2]=uint64(number[2]);
-        tempNumber[3]=uint64(number[3]);
+        tempNumber[0] = uint64(number[0]);
+        tempNumber[1] = uint64(number[1]);
+        tempNumber[2] = uint64(number[2]);
+        tempNumber[3] = uint64(number[3]);
 
         uint64[keyLengthForEachBuy] memory result;
         // match all
@@ -382,7 +381,7 @@ contract Raffle is RaffleOwnable, Initializable {
         uint256 matchingNumber = 0;
         for (uint i = 0; i < raffleNumbers.length; i++) {
             if (_winningNumbers[i] == raffleNumbers[i]) {
-                matchingNumber= matchingNumber +1;
+                matchingNumber = matchingNumber + 1;
             }
         }
         uint256 reward = 0;

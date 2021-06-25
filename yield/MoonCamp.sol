@@ -992,7 +992,7 @@ contract BootCamp is Ownable, ReentrancyGuard {
      */
     function emergencyRewardWithdraw(uint256 _amount) external onlyOwner {
         rewardToken.safeTransfer(address(msg.sender), _amount);
-        emit EmergencyRewardWithdraw(msg.sender, user.amount);
+        emit EmergencyRewardWithdraw(msg.sender, _amount);
     }
 
     /**

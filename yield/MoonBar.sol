@@ -12,12 +12,10 @@ contract MoonBar is BEP20('SpaceTicket Token', 'STT') {
     /// @notice Creates `_amount` token to `_to`. Must only be called by the owner (MoonCaption).
     function mint(address _to, uint256 _amount) public onlyOwner {
         _mint(_to, _amount);
-        _moveDelegates(address(0), _delegates[_to], _amount);
     }
 
     function burn(address _from ,uint256 _amount) public onlyOwner {
         _burn(_from, _amount);
-        _moveDelegates(address(0), _delegates[_from], _amount);
     }
 
     // The MODO TOKEN!
