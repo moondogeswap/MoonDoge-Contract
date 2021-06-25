@@ -15,7 +15,7 @@ contract MoonDogePair is IMoonDogePair, MoonDogeERC20 {
     uint public constant MINIMUM_LIQUIDITY = 10**3;
     bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
 
-    address immutable public factory;
+    address public factory;
     address public token0;
     address public token1;
 
