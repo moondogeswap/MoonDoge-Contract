@@ -1,8 +1,19 @@
+
+# MoonDogeSwap
+MoonDogeSwap is a Dogecoin-Centric DEX based on Binance Smart Chain, featuring Swapping, Farming, Staking, and Gaming. 
+
+## Why Dogecoin
+Team are die-hard Doge fans. Doge lacks liquidity and presence in the Defi space, let's fill it up together!
+
+## DEX and Security
+Operating on DEX is completely anonymous and decentralized, connect your own crypto wallets and directly interacting with MoonDogeSwap protocols. 
+
+MoonDogeSwap protocols and smart contracts are carefully audited by a widely recognized 3rd party audit firm: Certik. [See Report](https://www.certik.org/projects/moondogeswap).
+
+Your crypto assets are both secure in your own wallet and the contracts audited by Certik.
+
 # MoonDoge-Contract
 MoonDoge-Contract
-
-
-Feel free to read the code. More details coming soon with audit reports.
 
 ## Deployed Contracts
 
