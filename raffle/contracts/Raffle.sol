@@ -66,7 +66,7 @@ contract Raffle is RaffleOwnable, Initializable {
     event MultiClaim(address indexed user, uint256[] tickets, uint256 amount);
     event MultiBuy(address indexed user, uint256[] tickets, uint256 amount);
     event UpdateMaxNumber(uint8 indexed prev, uint8 indexed number);
-    event UpdateAllocation(uint8[] indexed prev, uint8[] indexed alloc);
+    event UpdateAllocation(uint8[3] indexed prev, uint8[3] indexed alloc);
 
     constructor() public {
     }
@@ -254,14 +254,14 @@ contract Raffle is RaffleOwnable, Initializable {
         require (!drawed(), 'drawed, can not buy now');
         require (!drawingPhase, "enter drawing phase first");
         require (_price >= minPrice.mul(_numbers.length), 'price must above minPrice');
-        uint256[] tickets;
+        uint256[] memory tickets = new uint256[](_numbers.length);
         uint256 totalPrice = 0;
         for (uint i = 0; i < _numbers.length; i++) {
             for (uint j = 0; j < 4; j++) {
                 require (_numbers[i][j] <= maxNumber && _numbers[i][j] > 0, 'exceed number scope');
             }
             uint256 tokenId = raffleNFT.newRaffleItem(msg.sender, _numbers[i], _price, issueIndex);
-            tickets.push(tokenId);
+            tickets[i] = tokenId;
             raffleInfo[issueIndex].push(tokenId);
             if (userInfo[msg.sender].length == 0) {
                 totalAddresses = totalAddresses + 1;
@@ -412,16 +412,16 @@ contract Raffle is RaffleOwnable, Initializable {
 
     // Set the maxNumber price for raffle
     function setMaxNumber(uint8 _maxNumber) external onlyAdmin {
-        unit8 prevMaxNumber = maxNumber;
+        uint8 prevMaxNumber = maxNumber;
         maxNumber = _maxNumber;
         emit UpdateMaxNumber(prevMaxNumber, maxNumber);
     }
 
     // Set the allocation for one reward
     function setAllocation(uint8 _allocation1, uint8 _allocation2, uint8 _allocation3) external onlyAdmin {
-        uint8 _totalAlloc = _allocation1.add(_allocation2).add(_allocation3);
+        uint256 _totalAlloc = _allocation1.add(_allocation2).add(_allocation3);
         require(totalAlloc > _totalAlloc && _totalAlloc > 0, "invalid alloc");
-        unit8[] prevAllocation = allocation;
+        uint8[3] memory prevAllocation = [allocation[0], allocation[1], allocation[2]];
         allocation = [_allocation1, _allocation2, _allocation3];
         emit UpdateAllocation(prevAllocation, allocation);
     }
