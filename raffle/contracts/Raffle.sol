@@ -317,20 +317,20 @@ contract Raffle is RaffleOwnable, Initializable {
 
         uint64[keyLengthForEachBuy] memory result;
         // match all
-        result[0] = tempNumber[0] << 48 + 1 << 40 + tempNumber[1] << 32 + 2 << 24 + tempNumber[2] << 16 + 3 << 8 + tempNumber[3];
+        result[0] = bitwiseLeft(tempNumber[0], 48) + bitwiseLeft(1, 40) + bitwiseLeft(tempNumber[1], 32) + bitwiseLeft(2, 24) + bitwiseLeft(tempNumber[2] ,16) + bitwiseLeft(3, 8) + tempNumber[3];
         // match 3
-        result[1] = tempNumber[0] << 32 + 1 << 24 + tempNumber[1] << 16 + 2 << 8 + tempNumber[2];
-        result[2] = tempNumber[0] << 32 + 1 << 24 + tempNumber[1] << 16 + 3 << 8 + tempNumber[3];
-        result[3] = tempNumber[0] << 32 + 2 << 24 + tempNumber[2] << 16 + 3 << 8 + tempNumber[3];
-        result[4] = 1 << 40 + tempNumber[1] << 32 + 2 << 24 + tempNumber[2] << 16 + 3 << 8 + tempNumber[3];
+        result[1] = bitwiseLeft(tempNumber[0], 32) + bitwiseLeft(1, 24) + bitwiseLeft(tempNumber[1], 16) + bitwiseLeft(2, 8) + tempNumber[2];
+        result[2] = bitwiseLeft(tempNumber[0], 32) + bitwiseLeft(1, 24) + bitwiseLeft(tempNumber[1], 16) + bitwiseLeft(3, 8) + tempNumber[3];
+        result[3] = bitwiseLeft(tempNumber[0], 32) + bitwiseLeft(2, 24) + bitwiseLeft(2, 16) + bitwiseLeft(3, 8) + tempNumber[3];
+        result[4] = bitwiseLeft(1, 40) + bitwiseLeft(tempNumber[1], 32) + bitwiseLeft(2, 24) + bitwiseLeft(tempNumber[2], 16) + bitwiseLeft(3, 8) + tempNumber[3];
         // match 2
-        result[5] = tempNumber[0] << 16 + 1 << 8 + tempNumber[1];
-        result[6] = tempNumber[0] << 16 + 2 << 8 + tempNumber[2];
-        result[7] = tempNumber[0] << 16 + 3 << 8 + tempNumber[3];
+        result[5] = bitwiseLeft(tempNumber[0], 16) + bitwiseLeft(1, 8) + tempNumber[1];
+        result[6] = bitwiseLeft(tempNumber[0], 16) + bitwiseLeft(2, 8) + tempNumber[2];
+        result[7] = bitwiseLeft(tempNumber[0], 16) + bitwiseLeft(3, 8) + tempNumber[3];
         // match 1
-        result[8] = 1 << 24 + tempNumber[1] << 16 + 2 << 8 + tempNumber[2];
-        result[9] = 1 << 24 + tempNumber[1] << 16 + 3 << 8 + tempNumber[3];
-        result[10] = 2 << 24 + tempNumber[2] << 16 + 3 << 8 + tempNumber[3];
+        result[8] = bitwiseLeft(1, 24) + bitwiseLeft(tempNumber[1], 16) + bitwiseLeft(2, 8) + tempNumber[2];
+        result[9] = bitwiseLeft(1, 24) + bitwiseLeft(tempNumber[1], 16) + bitwiseLeft(3, 8) + tempNumber[3];
+        result[10] = bitwiseLeft(2, 24) + bitwiseLeft(tempNumber[2], 16) + bitwiseLeft(3, 8) + tempNumber[3];
 
         return result;
     }
@@ -426,4 +426,7 @@ contract Raffle is RaffleOwnable, Initializable {
         emit UpdateAllocation(prevAllocation, allocation);
     }
 
+    function bitwiseLeft(uint64 number, uint64 bitwise) internal pure returns(uint64) {
+        return number << bitwise;
+    }
 }
