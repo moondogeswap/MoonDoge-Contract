@@ -253,7 +253,7 @@ contract Raffle is RaffleOwnable, Initializable {
     function  multiBuy(uint256 _price, uint8[4][] memory _numbers) external {
         require (!drawed(), 'drawed, can not buy now');
         require (!drawingPhase, "enter drawing phase first");
-        require (_price >= minPrice.mul(_numbers.length), 'price must above minPrice');
+        require (_price >= minPrice, 'price must above minPrice');
         uint256[] memory tickets = new uint256[](_numbers.length);
         uint256 totalPrice = 0;
         for (uint i = 0; i < _numbers.length; i++) {
@@ -321,7 +321,7 @@ contract Raffle is RaffleOwnable, Initializable {
         // match 3
         result[1] = bitwiseLeft(tempNumber[0], 32) + bitwiseLeft(1, 24) + bitwiseLeft(tempNumber[1], 16) + bitwiseLeft(2, 8) + tempNumber[2];
         result[2] = bitwiseLeft(tempNumber[0], 32) + bitwiseLeft(1, 24) + bitwiseLeft(tempNumber[1], 16) + bitwiseLeft(3, 8) + tempNumber[3];
-        result[3] = bitwiseLeft(tempNumber[0], 32) + bitwiseLeft(2, 24) + bitwiseLeft(2, 16) + bitwiseLeft(3, 8) + tempNumber[3];
+        result[3] = bitwiseLeft(tempNumber[0], 32) + bitwiseLeft(2, 24) + bitwiseLeft(tempNumber[2], 16) + bitwiseLeft(3, 8) + tempNumber[3];
         result[4] = bitwiseLeft(1, 40) + bitwiseLeft(tempNumber[1], 32) + bitwiseLeft(2, 24) + bitwiseLeft(tempNumber[2], 16) + bitwiseLeft(3, 8) + tempNumber[3];
         // match 2
         result[5] = bitwiseLeft(tempNumber[0], 16) + bitwiseLeft(1, 8) + tempNumber[1];
