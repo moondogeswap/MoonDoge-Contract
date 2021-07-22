@@ -309,6 +309,7 @@ contract MoonCaptain is Ownable {
 
     // Withdraw without caring about rewards. EMERGENCY ONLY.
     function emergencyWithdraw(uint256 _pid) public validatePoolId(_pid) {
+        require(_pid != 0, "withdraw: pls use leavestaking");
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         pool.lpToken.safeTransfer(address(msg.sender), user.amount);
