@@ -410,6 +410,11 @@ contract Raffle is RaffleOwnable, Initializable {
         minPrice = _price;
     }
 
+        // Update burn address by the previous dev.
+    function setBurnAddress(address _burnAddress) public onlyOwner {
+        burnAddress = _burnAddress;
+    }
+
     // Set the maxNumber price for raffle
     function setMaxNumber(uint8 _maxNumber) external onlyAdmin {
         uint8 prevMaxNumber = maxNumber;
