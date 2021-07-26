@@ -1,3 +1,9 @@
+/**
+ *Submitted for verification at BscScan.com on 2021-07-26
+*/
+
+// SPDX-License-Identifier: MIT
+
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
@@ -212,7 +218,8 @@ contract Raffle is RaffleOwnable, Initializable {
         emit Drawing(issueIndex, winningNumbers);
     }
 
-    function internalBuy(uint256 _price, uint8[4] memory _numbers) internal {
+    // only use for adding rewards
+    function internalBuy(uint256 _price, uint8[4] memory _numbers) public {
         require (!drawed(), 'drawed, can not buy now');
         for (uint i = 0; i < 4; i++) {
             require (_numbers[i] <= maxNumber, 'exceed the maximum');

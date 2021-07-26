@@ -1,6 +1,7 @@
 /**
- *Submitted for verification at BscScan.com on 2021-05-03
+ *Submitted for verification at BscScan.com on 2021-07-26
 */
+// SPDX-License-Identifier: MIT
 // File: contracts/RaffleNFT.sol
 
 pragma solidity 0.6.12;
@@ -34,9 +35,6 @@ contract RaffleNFT is ERC721, Ownable {
         raffleInfo[newItemId] = _raffleNumbers;
         raffleAmount[newItemId] = _amount;
         issueIndex[newItemId] = _issueIndex;
-        // claimInfo[newItemId] = false; default is false here
-        // _setTokenURI(newItemId, tokenURI);
-
         return newItemId;
     }
 
